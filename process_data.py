@@ -2,7 +2,7 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 
-def split_data_ridge_lasso(data, train_ratio, standardized):
+def split_data_ridge_lasso(data, train_ratio):
     num_rows = data.shape[0]
     train_set_size = int(num_rows * train_ratio)
 

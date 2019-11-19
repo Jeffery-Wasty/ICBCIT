@@ -1,4 +1,5 @@
 import process_data
+import one_hot_encode
 
 import pandas as pd
 import numpy as np
@@ -62,7 +63,7 @@ def kfoldCV(x, y, K, model):
     return cv_error, train_error
 
 
-def subset(lambdas, f_type):
+def subset(lambdas, f_type, plot):
     s_data = process_data.split_data_ridge_lasso(data_train, 0.75)
 
     results_train = []
@@ -77,8 +78,10 @@ def subset(lambdas, f_type):
         result = kfoldCV(s_data[5], s_data[1], 5, mod)
         results_train.append(np.mean(result[0]))
         results_cv.append(np.mean(result[1]))
-    process_data.error_plot(results_train, results_cv,
-                            np.log10(lambdas), f_type)
+    if plot:
+        process_data.error_plot(results_train, results_cv,
+                                np.log10(lambdas), f_type)
+    return min(results_train), min(results_cv)
 
 
 lambdas_ridge = [1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2,
@@ -103,12 +106,37 @@ lambdas_lasso = [
     10 ** 2,
 ]
 
-data_train = pd.read_csv("datasets/category_trained.csv")
+nunique_values = [1, 2, 3, 4, 5, 10, 15, 20, 50]
 
-data_train = data_train.loc[:, ['feature1', 'feature2', 'feature6',
-                                'feature8', 'feature10', 'feature12',
-                                'feature17', 'ClaimAmount']]
+mae_value = [100000000, 100000000, 100000000, 100000000]
+string_value = [0, 0, 0, 0]
 
+for value in nunique_values:
 
-subset(lambdas_ridge, "ridge regression")
-subset(lambdas_lasso, "the lasso")
+    data_train = one_hot_encode.load("datasets/trainingset.csv", value)
+
+    result = subset(lambdas_ridge, "ridge regression", False)
+
+    if (result[0] < mae_value[0]):
+        mae_value[0] = result[0]
+        string_value[0] = value
+    if (result[1] < mae_value[1]):
+        mae_value[1] = result[1]
+        string_value[1] = value
+
+    result = subset(lambdas_lasso, "the lasso", False)
+    if (result[0] < mae_value[2]):
+        mae_value[2] = result[0]
+        string_value[2] = value
+    if (result[1] < mae_value[3]):
+        mae_value[3] = result[1]
+        string_value[3] = value
+
+print("The lowest training MAE for ridge was " +
+      str(mae_value[0]) + " for nunique_values = " + str(string_value[0]))
+print("The lowest validation MAE for ridge was " +
+      str(mae_value[1]) + " for nunique_values = " + str(string_value[1]))
+# print("The lowest training MAE for lasso was " +
+#       str(mae_value[2]) + " for nunique_values = " + string_value[2])
+# print("The lowest validation MAE for lasso was " +
+#       str(mae_value[3]) + " for nunique_values = " + string_value[3])

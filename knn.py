@@ -3,12 +3,59 @@ import process_data
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_validate
 import warnings
 from sklearn.exceptions import DataConversionWarning
 import math
 
 warnings.filterwarnings(action="ignore", category=DataConversionWarning)
+
+
+def kneigh_kfoldCV(x, y, x_test=0, y_test=0, k=1, test=False):
+    cv_val_error = 0
+    cv_test_error = 0
+
+    number_in_error = 0
+
+    for i in range(10):
+        x_split = np.array_split(x, 10)
+        y_split = np.array_split(y, 10)
+
+        val_data_x = x_split[i]
+        val_data_y = y_split[i].tolist()
+
+        x_split.pop(i)
+        y_split.pop(i)
+
+        train_data_x = np.concatenate(x_split)
+        train_data_y = np.concatenate(y_split)
+
+        err_val_cv = 0
+        err_test_cv = 0
+
+        neigh = KNeighborsClassifier(n_neighbors=k)
+        neigh.fit(train_data_x, train_data_y)
+
+        out = neigh.predict(val_data_x)
+        for i in range(len(out)):
+            if out[i] != val_data_y[i]:
+                err_val_cv += 1
+        err_val_cv /= len(out)
+        cv_val_error += err_val_cv
+
+        if test:
+            test_out = neigh.predict(x_test)
+            for i in range(len(test_out)):
+                if test_out[i] != y_test[i]:
+                    err_test_cv += 1
+            err_test_cv /= len(test_out)
+            cv_test_error += err_test_cv
+
+    cv_val_error /= 10
+    cv_test_error /= 10
+
+    return cv_val_error, cv_test_error
 
 
 def kfoldCV(x, y, K, model):
@@ -103,12 +150,29 @@ lambdas_lasso = [
     10 ** 2,
 ]
 
-data_train = pd.read_csv("datasets/category_trained.csv")
+data_train = pd.read_csv("datasets/trainingset.csv")
 
-data_train = data_train.loc[:, ['feature1', 'feature2', 'feature6',
-                                'feature8', 'feature10', 'feature12',
-                                'feature17', 'ClaimAmount']]
+#subset(lambdas_ridge, "ridge regression")
+#subset(lambdas_lasso, "the lasso")
+
+k = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
 
 
-subset(lambdas_ridge, "ridge regression")
-subset(lambdas_lasso, "the lasso")
+s_data = process_data.split_data_ridge_lasso(data_train, 0.75)
+
+for i, row in s_data[1].iteritems():
+    claim_val = 0
+    if row > 0:
+        claim_val = 1
+    s_data[1][row] = claim_val
+
+results_train = []
+results_cv = []
+
+for a in k:
+    result = kneigh_kfoldCV(
+        s_data[5], s_data[1], x_test=0, y_test=0, k=1, test=False)
+    results_train.append(np.mean(result[0]))
+    results_cv.append(np.mean(result[1]))
+process_data.error_plot(results_train, results_cv,
+                        k, "knn")
