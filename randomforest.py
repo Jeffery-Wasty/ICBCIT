@@ -63,7 +63,8 @@ def forest_kfoldCV(x, y, K, n):
 
 
 data = pd.read_csv("datasets/trainingset.csv")
-testSet = pd.read_csv("datasets/testset.csv")
+testSet = pd.read_csv("category_test_randforest.csv")
+originalTest = testSet.copy()
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
 print(data.head(100).to_string())
@@ -88,7 +89,7 @@ drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
 
 training_data_in = training_data_in.drop(drop_features, axis=1)
 testSet = testSet.drop(drop_features, axis=1)
-
+testSet = testSet.drop(['PredictedCategory'], axis=1)
 
 test_data_in = test_data_in.drop(drop_features, axis=1)
 
@@ -102,7 +103,7 @@ pt3_valid_arr = []
 #    print(i, "training: ", kfold_result[1], "cv: ", kfold_result[0])
 
 print(training_data_in.head(50).to_string())
-print(forest_kfoldCV(training_data_in, training_data_out, 5, 0))
+#print(forest_kfoldCV(training_data_in, training_data_out, 5, 0))
 
 #plt.plot(range(2, 12), pt3_train_arr)
 #plt.plot(range(2, 12), pt3_valid_arr)
@@ -132,5 +133,8 @@ y_pred_val = rf2.predict(testSet)
 export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
 export['rowIndex'] = range(0, 30000)
 export['ClaimAmount'] = y_pred_val[0:30000]
-export.to_csv('random_forest.csv', index=False)
+for i in range(len(export)):
+    if originalTest.iloc[i]['PredictedCategory'] == 0:
+        export.at[i, 'ClaimAmount'] = 0
+export.to_csv('random_forest_category.csv', index=False)
 print(export)
