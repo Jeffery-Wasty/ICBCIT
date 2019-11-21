@@ -110,9 +110,9 @@ def export(lambdas, f_type):
     export[export < 0] = 0
 
     if (f_type == 'ridge regression'):
-        export.to_csv('1_6_3.csv', index=False)
+        export.to_csv('1_1_3.csv', index=False)
     else:
-        export.to_csv('1_6_4.csv', index=False)
+        export.to_csv('1_1_4.csv', index=False)
 
 
 lambdas_ridge = [1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2,

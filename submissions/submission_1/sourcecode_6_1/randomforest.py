@@ -135,5 +135,5 @@ y_pred_val = rf2.predict(testSet)
 export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
 export['rowIndex'] = range(0, 30000)
 export['ClaimAmount'] = y_pred_val[0:30000]
-export.to_csv('1_6_2.csv', index=False)
+export.to_csv('1_1_2.csv', index=False)
 print(export)

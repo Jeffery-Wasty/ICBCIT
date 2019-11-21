@@ -53,6 +53,6 @@ mae = np.mean(lst)
 export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
 export['rowIndex'] = range(0, 30000)
 export['ClaimAmount'] = price_pred[0:30000]
-export.to_csv('1_6_1.csv', index=False)
+export.to_csv('1_1_1.csv', index=False)
 
 print('Mean Absolute Error = ', mae)
