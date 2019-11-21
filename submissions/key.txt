@@ -1,4 +1,7 @@
-1) random_forest_1
+Submission 1
+--------------------------------
+
+1_6_1: random_forest
 5 fold cv error = 208.10680759249277
 drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
                                       'feature9', 'feature13', 'feature14',
@@ -7,9 +10,14 @@ rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_s
 75/25 split
 
 
-2) linear_regression_1
+1_6_2: linear_regression
 MAE (75/25 split) =  185.13226874179486
 drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
                                       'feature9', 'feature13', 'feature14',
                                       'feature18']
 
+1_6_3: ridge_regression
+
+1_6_4: lasso
+
+1_6_5: All Zeroes

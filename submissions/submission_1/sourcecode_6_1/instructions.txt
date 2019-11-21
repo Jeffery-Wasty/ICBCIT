@@ -1,0 +1,14 @@
+To generate:
+
+1_6_1 / 1_6_2:
+
+1_6_3 / 1_6_4:
+Run `python ridge_lasso.py`
+Predictions will be output as 1_6_3.csv for ridge_regression
+ and 1_6_4.csv for lasso.
+
+1_6_1 / 1_6_2:
+
+1_6_1 / 1_6_2:
+
+1_6_1 / 1_6_2:
