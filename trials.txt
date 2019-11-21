@@ -1,0 +1,9 @@
+1) random_forest_1
+5 fold cv error = 208.10680759249277
+drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
+                                      'feature9', 'feature13', 'feature14',
+                                      'feature18']
+rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_samples_split=10)
+75/25 split
+
+
