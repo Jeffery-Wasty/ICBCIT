@@ -1,5 +1,7 @@
 import process_data
 
+from sklearn.preprocessing import StandardScaler
+
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
@@ -81,6 +83,38 @@ def subset(lambdas, f_type):
                             np.log10(lambdas), f_type)
 
 
+def export(lambdas, f_type):
+    s_data = process_data.split_data_ridge_lasso(data_train, 0.75)
+
+    for a in lambdas:
+        if (f_type == 'ridge regression'):
+            mod = Ridge(alpha=1e3, fit_intercept=True)
+        else:
+            mod = Lasso(alpha=10**2, fit_intercept=False)
+
+    x = s_data[5]
+    y = s_data[1]
+
+    mod.fit(x, y)
+
+    standard_test = StandardScaler(
+        with_mean=True, with_std=True).fit_transform(data_test)
+
+    y_pred_val = mod.predict(standard_test)
+
+    export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
+
+    export['rowIndex'] = range(0, 30000)
+    export['ClaimAmount'] = y_pred_val[0:30000]
+
+    export[export < 0] = 0
+
+    if (f_type == 'ridge regression'):
+        export.to_csv('submissions/submission_1/1_6_3.csv', index=False)
+    else:
+        export.to_csv('submissions/submission_1/1_6_4.csv', index=False)
+
+
 lambdas_ridge = [1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2,
                  1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10]
 lambdas_lasso = [
@@ -101,14 +135,18 @@ lambdas_lasso = [
     10 ** 1.5,
     10 ** 1.75,
     10 ** 2,
+
+
 ]
 
 data_train = pd.read_csv("datasets/category_trained.csv")
+data_test = pd.read_csv("datasets/testset.csv")
 
-data_train = data_train.loc[:, ['feature1', 'feature2', 'feature6',
-                                'feature8', 'feature10', 'feature12',
-                                'feature17', 'ClaimAmount']]
+# subset(lambdas_ridge, "ridge regression")
+# subset(lambdas_lasso, "the lasso")
 
 
-subset(lambdas_ridge, "ridge regression")
-subset(lambdas_lasso, "the lasso")
+# lambdas_ridge = 3, lambadas_lasso = 2
+
+export(lambdas_ridge, "ridge regression")
+export(lambdas_lasso, "the lasso")
