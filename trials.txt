@@ -7,3 +7,9 @@ rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_s
 75/25 split
 
 
+2) linear_regression_1
+MAE (75/25 split) =  185.13226874179486
+drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
+                                      'feature9', 'feature13', 'feature14',
+                                      'feature18']
+

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 
 data = pd.read_csv("datasets/trainingset.csv")
+testSet = pd.read_csv("datasets/testset.csv")
 
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
@@ -33,6 +34,7 @@ drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
                                       'feature18']
 
 training_data_in = training_data_in.drop(drop_features, axis=1)
+testSet = testSet.drop(drop_features, axis=1)
 
 
 test_data_in = test_data_in.drop(drop_features, axis=1)
@@ -47,5 +49,10 @@ for i in range(len(price_pred)):
     tmp = abs(test_data_out.values[i] - price_pred[i])
     lst.append(tmp)
 mae = np.mean(lst)
+
+# export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
+# export['rowIndex'] = range(0, 30000)
+# export['ClaimAmount'] = price_pred[0:30000]
+# export.to_csv('random_forest.csv', index=False)
 
 print('Mean Absolute Error = ', mae)
