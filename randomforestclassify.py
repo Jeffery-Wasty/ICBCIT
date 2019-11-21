@@ -1,13 +1,8 @@
-from sklearn import tree
 from sklearn import metrics
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.svm import SVC
-from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import RandomizedSearchCV
+import random
 
 def randomforest_kfoldCV(x, y, K, n):
     subset_in = np.array_split(x, K)
@@ -66,11 +61,13 @@ for i, row in data.iterrows():
         claim_val = 1
     data.at[i, 'ClaimAmount'] = claim_val
 
-train_ratio = 0.5
+train_ratio = 0.75
 num_rows = data.shape[0]
 train_set_size = int(train_ratio * num_rows)
 
 shuffled_indices = list(range(num_rows))
+random.seed(42)
+random.shuffle(shuffled_indices)
 
 train_indices = shuffled_indices[:train_set_size]
 test_indices = shuffled_indices[train_set_size:]
@@ -81,6 +78,27 @@ test_data = data.iloc[test_indices, :]
 
 indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
 test_data.drop(indexNames, inplace=True)
+
+indexNames = train_data[ train_data['ClaimAmount'] != 1 ].index
+train_claims = train_data.drop(indexNames, inplace=False)
+
+indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
+train_no_claims = train_data.drop(indexNames, inplace=False)
+no_claims_rows = train_no_claims.shape[0]
+no_claims_size = int(0.01 * no_claims_rows)
+
+train_data = train_claims.append(train_no_claims[:no_claims_size])
+
+num_rows = train_data.shape[0]
+
+shuffled_indices = list(range(num_rows))
+random.seed(42)
+random.shuffle(shuffled_indices)
+
+train_indices = shuffled_indices[:num_rows]
+train_data = train_data.iloc[train_indices, :]
+
+print(train_data.head(50).to_string())
 
 training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15', 'feature16',
                                       'feature18', 'ClaimAmount']]
@@ -124,11 +142,10 @@ clf = RandomForestClassifier(n_estimators=100)
 #rf_random = RandomizedSearchCV(estimator = clf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
 clf.fit(training_data_in, training_data_out)
 
-y_true_test = clf.predict(true_test)
+#y_true_test = clf.predict(true_test)
 
-#y_pred = clf.predict(test_data_in)
-#y_train = clf.predict(training_data_in)
-
+y_pred = clf.predict(test_data_in)
+y_train = clf.predict(training_data_in)
 
 #print(rf_random.best_params_)
 
@@ -150,12 +167,12 @@ y_true_test = clf.predict(true_test)
 #plt.show()
 
 
-#print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
-#print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
+print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
+print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
 
-export = test_csv.copy()
-export['PredictedCategory'] = y_true_test
+#export = test_csv.copy()
+#export['PredictedCategory'] = y_true_test
 #indexNames = export[ export['PredictedCategory'] != 1 ].index
 #export.drop(indexNames, inplace=True)
-export.to_csv('category_test_randforest.csv')
-print(export)
+#export.to_csv('category_test_randforest.csv')
+#print(export)
