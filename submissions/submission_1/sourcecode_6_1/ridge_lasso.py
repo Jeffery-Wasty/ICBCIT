@@ -139,8 +139,8 @@ lambdas_lasso = [
 
 ]
 
-data_train = pd.read_csv("category_trained.csv")
-data_test = pd.read_csv("testset.csv")
+data_train = pd.read_csv("datasets/category_trained.csv")
+data_test = pd.read_csv("datasets/testset.csv")
 
 # subset(lambdas_ridge, "ridge regression")
 # subset(lambdas_lasso, "the lasso")

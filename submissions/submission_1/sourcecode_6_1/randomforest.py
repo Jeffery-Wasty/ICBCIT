@@ -64,8 +64,8 @@ def forest_kfoldCV(x, y, K, n):
     return cv_error, train_error
 
 
-data = pd.read_csv("trainingset.csv")
-testSet = pd.read_csv("testset.csv")
+data = pd.read_csv("datasets/trainingset.csv")
+testSet = pd.read_csv("datasets/testset.csv")
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
 print(data.head(100).to_string())

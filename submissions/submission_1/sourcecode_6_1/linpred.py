@@ -8,8 +8,8 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
 
-data = pd.read_csv("trainingset.csv")
-testSet = pd.read_csv("testset.csv")
+data = pd.read_csv("datasets/trainingset.csv")
+testSet = pd.read_csv("datasets/testset.csv")
 
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
