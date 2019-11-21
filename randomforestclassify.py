@@ -55,6 +55,7 @@ def evaluate(model, test_features, test_labels):
 
     return accuracy
 
+test_csv = pd.read_csv('testset.csv')
 data = pd.read_csv('trainingset.csv')
 
 original_data = data.copy()
@@ -87,6 +88,8 @@ training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feat
 test_data_in = test_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15', 'feature16',
                                       'feature18', 'ClaimAmount']]
 
+true_test = test_csv.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15', 'feature16',
+                                      'feature18']]
 
 training_data_in = training_data_in.drop('ClaimAmount', axis=1, inplace=False)
 training_data_out = train_data.loc[:, 'ClaimAmount']
@@ -117,17 +120,20 @@ random_grid = {'n_estimators': n_estimators,
                'min_samples_leaf': min_samples_leaf,
                'bootstrap': bootstrap}
 
-clf = RandomForestClassifier()
-rf_random = RandomizedSearchCV(estimator = clf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
-rf_random.fit(training_data_in, training_data_out)
+clf = RandomForestClassifier(n_estimators=100)
+#rf_random = RandomizedSearchCV(estimator = clf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
+clf.fit(training_data_in, training_data_out)
+
+y_true_test = clf.predict(true_test)
 
 #y_pred = clf.predict(test_data_in)
 #y_train = clf.predict(training_data_in)
 
-print(rf_random.best_params_)
 
-best_random = rf_random.best_estimator_
-random_accuracy = evaluate(best_random, test_data_in, test_data_out)
+#print(rf_random.best_params_)
+
+#best_random = rf_random.best_estimator_
+#random_accuracy = evaluate(best_random, test_data_in, test_data_out)
 
 #ks = np.arange(2, 15).tolist()
 #prediction_array = []
@@ -147,9 +153,9 @@ random_accuracy = evaluate(best_random, test_data_in, test_data_out)
 #print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
 #print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
 
-#export = original_data.copy()
-#export['PredictedCategory'] = y_train
+export = test_csv.copy()
+export['PredictedCategory'] = y_true_test
 #indexNames = export[ export['PredictedCategory'] != 1 ].index
 #export.drop(indexNames, inplace=True)
-#export.to_csv('category_trained.csv')
-#print(export)
+export.to_csv('category_test_randforest.csv')
+print(export)
