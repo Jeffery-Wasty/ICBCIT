@@ -30,6 +30,10 @@ original_data = original_data.iloc[train_indices, :]
 train_data = data.iloc[train_indices, :]
 test_data = data.iloc[test_indices, :]
 
+indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
+test_data.drop(indexNames, inplace=True)
+print(test_data.head(30).to_string())
+
 training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15', 'feature16',
                                       'feature18', 'ClaimAmount']]
 

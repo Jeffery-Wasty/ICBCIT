@@ -61,6 +61,10 @@ original_data = original_data.iloc[train_indices, :]
 train_data = data.iloc[train_indices, :]
 test_data = data.iloc[test_indices, :]
 
+indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
+test_data.drop(indexNames, inplace=True)
+print(test_data.head(30).to_string())
+
 training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15', 'feature16',
                                       'feature18', 'ClaimAmount']]
 
@@ -74,27 +78,29 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
 test_data_out = test_data.loc[:, 'ClaimAmount']
 
-print("Error cv:", sklearn_kNN_kfoldCV(training_data_in, training_data_out, 10, 23))
-print("Cutoff")
+#print("Error cv:", sklearn_kNN_kfoldCV(training_data_in, training_data_out, 10, 23))
+#print("Cutoff")
 ks = np.arange(1, 23, 2).tolist()
 prediction_array = []
 
-for i in range(len(ks)):
-    predictions = sklearn_kNN_kfoldCV(training_data_in, training_data_out, 10, ks[i])
-    prediction_array.append(predictions)
+#for i in range(len(ks)):
+#    predictions = sklearn_kNN_kfoldCV(training_data_in, training_data_out, 10, ks[i])
+#    prediction_array.append(predictions)
 
-plt.plot(ks, prediction_array)
-plt.suptitle("Average cross-prediction error against number of neighbours checked")
-plt.xlabel("k = ")
-plt.ylabel("Average cross-prediction error")
-plt.legend(['y = avg prediction error'], loc='upper left')
-plt.show()
+#plt.plot(ks, prediction_array)
+#plt.suptitle("Average cross-prediction error against number of neighbours checked")
+#plt.xlabel("k = ")
+#plt.ylabel("Average cross-prediction error")
+#plt.legend(['y = avg prediction error'], loc='upper left')
+#plt.show()
 
+neighbours = KNeighborsClassifier(n_neighbors=5)
+neighbours.fit(training_data_in, training_data_out)
 
-#y_pred = clf.predict(test_data_in)
+y_pred = neighbours.predict(test_data_in)
 #y_train = clf.predict(training_data_in)
 
-#print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
+print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
 #print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
 
 #export = original_data.copy()
