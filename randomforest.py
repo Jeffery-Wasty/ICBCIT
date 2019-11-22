@@ -67,8 +67,8 @@ testSet = pd.read_csv("category_test_randforest.csv")
 originalTest = testSet.copy()
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
-print(data.head(100).to_string())
-train_ratio = 0.75
+#print(data.head(100).to_string())
+train_ratio = 0.5
 num_rows = subset.shape[0]
 train_set_size = int(train_ratio * num_rows)
 
@@ -102,7 +102,7 @@ pt3_valid_arr = []
 #    pt3_valid_arr.append(kfold_result[0])
 #    print(i, "training: ", kfold_result[1], "cv: ", kfold_result[0])
 
-print(training_data_in.head(50).to_string())
+#print(training_data_in.head(50).to_string())
 #print(forest_kfoldCV(training_data_in, training_data_out, 5, 0))
 
 #plt.plot(range(2, 12), pt3_train_arr)
@@ -118,7 +118,7 @@ print(training_data_in.head(50).to_string())
 
 rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_samples_split=10)
 rf2.fit(training_data_in, training_data_out)
-y_pred_val = rf2.predict(testSet)
+y_pred_val = rf2.predict(test_data_in)
 
 # lst = []
 # for n in range(len(y_pred_val)):
@@ -128,13 +128,25 @@ y_pred_val = rf2.predict(testSet)
 # print("mae for 75/25 split, no kfold: ", mae)
 # r2 = r2_score(list(test_data_out), y_pred_val)
 # print("r2 for 75/25 split, no kfold: ", r2)
+print(len(test_data_in))
+print(len(y_pred_val))
+print(len(originalTest))
 
-
-export = pd.DataFrame(columns=['rowIndex', 'ClaimAmount'])
-export['rowIndex'] = range(0, 30000)
+export = test_data_in[0:30000]
+print(len(export))
+export.reset_index(drop=True)
 export['ClaimAmount'] = y_pred_val[0:30000]
 for i in range(len(export)):
     if originalTest.iloc[i]['PredictedCategory'] == 0:
-        export.at[i, 'ClaimAmount'] = 0
-export.to_csv('random_forest_category.csv', index=False)
-print(export)
+        export.iloc[i, export.columns.get_loc('ClaimAmount')] = 0
+#export.to_csv('random_forest_category.csv', index=False)
+
+lst = []
+print(len(test_data_out))
+print(len(export))
+for n in range(len(export)):
+    tmp = abs(list(test_data_out)[n] - export.iloc[n]['ClaimAmount'])
+    lst.append(tmp)
+mae = np.mean(lst)
+print(mae)
+#print(export)
