@@ -4,6 +4,7 @@ import math
 import re
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, LogisticRegression
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 
@@ -58,16 +59,24 @@ drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
 
 # test_data_in = test_data_in.drop(drop_features, axis=1)
 
-#initalizing and using logistic regression without parameter tuning
+#initalizing and using logistic regression without parameter tuning, fitting on our half claims / half not claims dataset
 logistic = LogisticRegression()
-logistic.fit(training_data_in, training_data_out)
-has_claim_pred =logistic.predict(training_data_in)
+# logistic.fit(training_data_in, training_data_out)
+# has_claim_pred =clf.predict(training_data_in)
 
-print(has_claim_pred[:50])
+param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+clf = GridSearchCV(LogisticRegression(penalty='l2'), param_grid)
+GridSearchCV(cv=None,
+             estimator=LogisticRegression(C=1.0, intercept_scaling=1,
+               dual=False, fit_intercept=True, penalty='l2', tol=0.0001),
+             param_grid={'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]})
+clf.fit(training_data_in, training_data_out)
+
+# print(has_claim_pred[:50])
 print(test_data_out.head(50))
 
 # Use score method to get accuracy of model on the dataset filled with only claims
-score = logistic.score(only_claims_test_in, only_claims_test_out)
+score = clf.score(only_claims_test_in, only_claims_test_out)
 print("predicting on only claims:", score)
 
 

@@ -4,6 +4,7 @@ import math
 import re
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
@@ -116,9 +117,11 @@ pt3_valid_arr = []
 # print(y_pred_val[0])
 # print(list(test_data_out)[0])
 
-rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_samples_split=10)
-rf2.fit(training_data_in, training_data_out)
-y_pred_val = rf2.predict(test_data_in)
+tuned_parameters = {'n_estimators': [10, 20, 30], 'max_depth': [None, 1, 2, 3], 'min_samples_split': [2, 3, 4]}
+clf = GridSearchCV(RandomForestRegressor(), tuned_parameters, cv=5,
+                   n_jobs=-1, verbose=1)
+clf.fit(training_data_in, training_data_out)
+y_pred_val = clf.predict(test_data_in)
 
 # lst = []
 # for n in range(len(y_pred_val)):
