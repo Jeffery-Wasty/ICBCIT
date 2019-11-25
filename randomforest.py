@@ -64,12 +64,12 @@ def forest_kfoldCV(x, y, K, n):
 
 
 data = pd.read_csv("datasets/trainingset.csv")
-testSet = pd.read_csv("category_test_randforest.csv")
-originalTest = testSet.copy()
+testSet = pd.read_csv("datasets/testset.csv")
+
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
-#print(data.head(100).to_string())
-train_ratio = 0.5
+print(data.head(100).to_string())
+train_ratio = 0.75
 num_rows = subset.shape[0]
 train_set_size = int(train_ratio * num_rows)
 
@@ -90,7 +90,7 @@ drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
 
 training_data_in = training_data_in.drop(drop_features, axis=1)
 testSet = testSet.drop(drop_features, axis=1)
-testSet = testSet.drop(['PredictedCategory'], axis=1)
+
 
 test_data_in = test_data_in.drop(drop_features, axis=1)
 
