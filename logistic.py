@@ -2,8 +2,8 @@ from sklearn import metrics
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import LogisticRegression
 import random
 
 
@@ -40,7 +40,7 @@ train_indices = shuffled_indices[:train_set_size]
 test_indices = shuffled_indices[train_set_size:]
 
 train_data = data.iloc[train_indices, :]
-test_data = test_csv.copy()
+test_data = data.iloc[test_indices, :]
 
 # Filter out 0's in the test data, comment out if want to use entire training set.
 # indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
@@ -55,7 +55,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.1 * no_claims_rows)
+no_claims_size = int(0.10 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -90,35 +90,21 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 
 # Cross Validation
 
-# Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 100, stop = 1000, num = 10)]
-# Number of features to consider at every split
-max_features = ['auto', 'sqrt']
-# Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
-max_depth.append(None)
-# Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10]
-# Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4]
-# Method of selecting samples for training each tree
-bootstrap = [True, False]
-# Create the random grid
-random_grid = {'n_estimators': n_estimators,
-               'max_features': max_features,
-               'max_depth': max_depth,
-               'min_samples_split': min_samples_split,
-               'min_samples_leaf': min_samples_leaf,
-               'bootstrap': bootstrap}
 
 #model1 = GridSearchCV(clf, param_grid=random_grid, n_jobs=-1)
 #model1.fit(training_data_in, training_data_out)
 
 #print("Best Hyper Parameters:\n",model1.best_params_)
-best_clf = RandomForestClassifier(bootstrap=False, max_depth=10, max_features='auto', min_samples_leaf=4, min_samples_split=2, n_estimators=300)
-best_clf.fit(training_data_in, training_data_out)
+param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
+clf = GridSearchCV(LogisticRegression(penalty='l2'), param_grid)
+GridSearchCV(cv=None,
+             estimator=LogisticRegression(C=1.0, intercept_scaling=1,
+               dual=False, fit_intercept=True, penalty='l2', tol=0.0001),
+             param_grid={'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]})
 
-prediction = best_clf.predict(test_data_in)
+clf.fit(training_data_in, training_data_out)
+
+prediction = clf.predict(test_data_in)
 
 # y_pred = clf.predict(test_data_in)
 # y_train = clf.predict(training_data_in)
@@ -135,7 +121,7 @@ print("prediction:", prediction.shape[0])
 
 export = test_data.copy()
 export['PredictedCategory'] = prediction
-export.to_csv('category_true_test_randforest.csv')
+export.to_csv('category_test_logistic.csv')
 print(export)
 
 print(export.shape[0])

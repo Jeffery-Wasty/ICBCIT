@@ -41,7 +41,7 @@ train_indices = shuffled_indices[:train_set_size]
 test_indices = shuffled_indices[train_set_size:]
 
 train_data = data.iloc[train_indices, :]
-test_data = data.iloc[test_indices, :]
+test_data = test_csv.copy()
 
 # Filter out 0's in the test data, comment out if want to use entire training set.
 # indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
@@ -56,7 +56,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.1 * no_claims_rows)
+no_claims_size = int(0.075 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -78,14 +78,16 @@ train_data = train_data.iloc[train_indices, :]
 training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
                                       'feature18', 'ClaimAmount']]
 
+# Add Claim Amount when training, remove when testing
 test_data_in = test_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
-                                      'feature18', 'ClaimAmount']]
+                                      'feature18']]
 
 training_data_in = training_data_in.drop('ClaimAmount', axis=1, inplace=False)
 training_data_out = train_data.loc[:, 'ClaimAmount']
 
-test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
-test_data_out = test_data.loc[:, 'ClaimAmount']
+# Uncomment when training, comment when testing
+#test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
+#test_data_out = test_data.loc[:, 'ClaimAmount']
 
 # Cross Validation
 
@@ -117,7 +119,7 @@ print("prediction:", prediction.shape[0])
 
 export = test_data.copy()
 export['PredictedCategory'] = prediction
-export.to_csv('category_test_svcv2.csv')
+export.to_csv('category_true_test_svc.csv')
 print(export)
 
 print(export.shape[0])
