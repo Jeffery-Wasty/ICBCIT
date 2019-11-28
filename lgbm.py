@@ -4,6 +4,7 @@ import math
 import re
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso, LogisticRegression
+import lightgbm as lgb
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
@@ -62,31 +63,35 @@ drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
                                       'feature9', 'feature13', 'feature14',
                                       'feature18']
 
-# training_data_in = training_data_in.drop(drop_features, axis=1)
+training_data_in = training_data_in.drop('feature1', axis=1)
 # testSet = testSet.drop(drop_features, axis=1)
 
-# test_data_in = test_data_in.drop(drop_features, axis=1)
+test_data_in = test_data_in.drop('feature1', axis=1)
 
 #initalizing and using logistic regression without parameter tuning, fitting on our half claims / half not claims dataset
 
-param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]}
-clf = GridSearchCV(LogisticRegression(penalty='l2'), param_grid)
-GridSearchCV(cv=None,
-             estimator=LogisticRegression(C=1.0, intercept_scaling=1,
-               dual=False, fit_intercept=True, penalty='l2', tol=0.0001),
-             param_grid={'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000]})
+param_grid = {
+    'num_leaves': [31, 127],
+    'reg_alpha': [0.1, 0.5],
+    'min_data_in_leaf': [30, 50, 100, 300, 400],
+    'lambda_l1': [0, 1, 1.5],
+    'lambda_l2': [0, 1]
+    }
+lgb_estimator = lgb.LGBMClassifier(boosting_type='gbdt',  objective='binary', num_boost_round=2000, learning_rate=0.01, metric='binary_error')
+gsearch = GridSearchCV(estimator=lgb_estimator, param_grid=param_grid, cv=2)
+lgb_model = gsearch.fit(X=training_data_in, y=training_data_out)
 
-clf.fit(training_data_in, training_data_out)
+print(lgb_model.best_params_, lgb_model.best_score_)
 
 # Use score method to get accuracy of model on the dataset filled with only claims
-# score = clf.score(only_claims_test_in, only_claims_test_out)
-# print("predicting on only claims:", score)
+score = lgb_model.score(only_claims_test_in, only_claims_test_out)
+print("predicting on only claims:", score)
 
 # --------------------------- Test Set
 
 #adding hasClaim column
 
-y_pred = clf.predict(testSet)
+y_pred = lgb_model.predict(testSet)
 testSet['hasClaim'] = y_pred
 
 testSet.to_csv('logistic_train_result.csv', index=False)

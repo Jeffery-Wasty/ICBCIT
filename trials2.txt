@@ -1,0 +1,8 @@
+1) submission_1
+logistic classifier (trained on half claims, half not) 75/25  split
+random forest regression - mae = 432
+
+2) submission_2
+logistic classifier (trained on 33% claims, 66% not claims) 75/25 split
+random forest regression - 92
+
