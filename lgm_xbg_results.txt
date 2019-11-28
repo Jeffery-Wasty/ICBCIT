@@ -1,0 +1,12 @@
+{'lambda_l1': 0, 'lambda_l2': 0, 'min_data_in_leaf': 30, 'num_leaves': 127, 'reg_alpha': 0.1} 0.606868434430238
+Acc: 0.5905797101449275
+2nd Acc: 0.9789501731947775
+
+
+{'lambda_l1': 0, 'lambda_l2': 0, 'min_data_in_leaf': 30, 'num_leaves': 127, 'reg_alpha': 0.1} 0.7567279509725553
+Acc: 0.5905797101449275
+2nd Acc: 0.9789501731947775
+
+{'colsample_bytree': 0.7, 'eta': 0.3, 'reg_gamma': 1e-05, 'subsample': 0.7}
+Acc: 0.5615942028985508
+2nd Acc: 0.9765520916600053
