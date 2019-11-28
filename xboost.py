@@ -19,7 +19,7 @@ def evaluate(model, test_features, test_labels):
     return accuracy
 
 # loading csv's
-test_csv = pd.read_csv('testset.csv')
+#test_csv = pd.read_csv('testset.csv')
 data = pd.read_csv('trainingset.csv')
 
 # Change ClaimAmount to 0's and 1's for whether they claimed or not.
@@ -93,20 +93,18 @@ test_data_out = test_data.loc[:, 'ClaimAmount']
 # Cross Validation
 
 random_grid = {
-    'max_depth': range (2, 15, 1),
-    'n_estimators': range(60, 220, 40),
-    'learning_rate': [0.1, 0.01, 0.05],
     'eta': [.3, .2, .1, .05, .01, .005],
-    'min_child_weight':range(1,6,2),
-    'gamma':[i/10.0 for i in range(0,5)],
-    'reg_alpha':[1e-5, 1e-2, 0.1, 1, 100]
+    'reg_gamma':[1e-5, 1e-2, 0.1, 1, 100],
+    'subsample':[i/10.0 for i in range(5,10)],
+    'colsample_bytree':[i/10.0 for i in range(5,10)]
 }
 
 params = {
     # Parameters that we are going to tune.
-    'max_depth':6,
+    'max_depth':14,
     'min_child_weight': 1,
-    'eta':.3,
+    'gamma': .3,
+    'learning_rate': 0.1,
     'subsample': 1,
     'colsample_bytree': 1,
     # Other parameters
@@ -116,7 +114,8 @@ data_dmatrix = xgb.DMatrix(data=training_data_in, label=training_data_out)
 data_testmatrix = xgb.DMatrix(data=test_data_in, label=test_data_out)
 num_boost_rounds = 999
 
-clf = xgb.XGBClassifier(objective='binary:logistic', nthread=4, seed=42)
+best_clf = xgb.XGBClassifier(objective='binary:logistic', nthread=4, seed=42, max_depth=14, gamma=0.3, learning_rate=0.1,
+                        min_child_weight=1, n_estimators=100, reg_alpha=0.1)
 # {'learning_rate': 0.1, 'max_depth': 9, 'n_estimators': 180}
 
 #best_clf = xgb.train(random_grid, )
@@ -125,10 +124,10 @@ clf = xgb.XGBClassifier(objective='binary:logistic', nthread=4, seed=42)
 evals = [(data_testmatrix, "Test")]
 
 print("Starting...")
-best_clf = GridSearchCV(estimator=clf, param_grid=random_grid, scoring='f1', n_jobs=4, cv=5)
+#best_clf = GridSearchCV(estimator=clf, param_grid=random_grid, scoring='f1', n_jobs=4, cv=5)
 
 best_clf.fit(training_data_in, training_data_out)
-print("Best Hyper Parameters:\n",best_clf.best_params_)
+#print("Best Hyper Parameters:\n",best_clf.best_params_)
 
 prediction = best_clf.predict(test_data_in)
 
