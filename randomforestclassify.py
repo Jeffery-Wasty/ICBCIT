@@ -40,11 +40,11 @@ train_indices = shuffled_indices[:train_set_size]
 test_indices = shuffled_indices[train_set_size:]
 
 train_data = data.iloc[train_indices, :]
-test_data = test_csv.copy()
+test_data = data.iloc[test_indices, :]
 
 # Filter out 0's in the test data, comment out if want to use entire training set.
-# indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
-# test_data = test_data.drop(indexNames, inplace=False)
+indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
+test_data = test_data.drop(indexNames, inplace=False)
 
 # Obtain training rows with claims
 indexNames = train_data[ train_data['ClaimAmount'] != 1 ].index
@@ -74,19 +74,21 @@ train_indices = shuffled_indices[:num_rows]
 train_data = train_data.iloc[train_indices, :]
 
 # Filter out certain columns
-training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
-                                      'feature18', 'ClaimAmount']]
+training_data_in = train_data.loc[:, ['feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6', 'feature7',
+                                      'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
+                                      'feature15', 'feature16', 'feature17', 'feature18', 'ClaimAmount']]
 
 # Add Claim Amount when training, remove when testing
-test_data_in = test_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
-                                      'feature18']]
+test_data_in = test_data.loc[:, ['feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6', 'feature7',
+                                      'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
+                                      'feature15', 'feature16', 'feature17', 'feature18', 'ClaimAmount']]
 
 training_data_in = training_data_in.drop('ClaimAmount', axis=1, inplace=False)
 training_data_out = train_data.loc[:, 'ClaimAmount']
 
 # Uncomment when training, comment when testing
-#test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
-#test_data_out = test_data.loc[:, 'ClaimAmount']
+test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
+test_data_out = test_data.loc[:, 'ClaimAmount']
 
 # Cross Validation
 
@@ -121,12 +123,12 @@ best_clf.fit(training_data_in, training_data_out)
 prediction = best_clf.predict(test_data_in)
 
 # y_pred = clf.predict(test_data_in)
-# y_train = clf.predict(training_data_in)
+y_train = best_clf.predict(training_data_in)
 
 # Print accuracy of 'test' and 'training'
 
-#print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
-#print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
+print('Acc:', metrics.accuracy_score(test_data_out, prediction))
+print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
 
 # Code to export dataframe
 
@@ -135,7 +137,7 @@ print("prediction:", prediction.shape[0])
 
 export = test_data.copy()
 export['PredictedCategory'] = prediction
-export.to_csv('category_true_test_randforest.csv')
+#export.to_csv('category_test_randforestv4.csv')
 print(export)
 
 print(export.shape[0])

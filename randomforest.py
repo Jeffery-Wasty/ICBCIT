@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 # Loading csvs
 data = pd.read_csv("trainingset.csv")
-testSet = pd.read_csv("category_test_logistic.csv")
+testSet = pd.read_csv("category_test_xgb.csv")
 originalTest = testSet.copy()
 subset = data.dropna(axis=0, how='any', inplace=False)
 train_ratio = 0.75

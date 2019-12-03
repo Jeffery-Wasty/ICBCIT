@@ -1,23 +1,7 @@
-from sklearn import metrics
 import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import GridSearchCV
+import xgboost as xgb
 import random
-from sklearn import svm
-
-
-def evaluate(model, test_features, test_labels):
-    predictions = model.predict(test_features)
-    errors = abs(predictions - test_labels)
-    mape = 100 * np.mean(errors / test_labels)
-    accuracy = 100 - mape
-    print('Model Performance')
-    print('Average Error: {:0.4f} degrees.'.format(np.mean(errors)))
-    print('Accuracy = {:0.2f}%.'.format(accuracy))
-
-    return accuracy
+import pickle
 
 # loading csv's
 test_csv = pd.read_csv('testset.csv')
@@ -44,8 +28,8 @@ train_data = data.iloc[train_indices, :]
 test_data = test_csv.copy()
 
 # Filter out 0's in the test data, comment out if want to use entire training set.
-# indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
-# test_data = test_data.drop(indexNames, inplace=False)
+#indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
+#test_data = test_data.drop(indexNames, inplace=False)
 
 # Obtain training rows with claims
 indexNames = train_data[ train_data['ClaimAmount'] != 1 ].index
@@ -56,7 +40,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.06 * no_claims_rows)
+no_claims_size = int(0.4 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -75,12 +59,14 @@ train_indices = shuffled_indices[:num_rows]
 train_data = train_data.iloc[train_indices, :]
 
 # Filter out certain columns
-training_data_in = train_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
-                                      'feature18', 'ClaimAmount']]
+training_data_in = train_data.loc[:, ['feature1', 'feature2', 'feature4', 'feature5', 'feature6', 'feature7',
+                                      'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
+                                      'feature15', 'feature16', 'feature17', 'feature18', 'ClaimAmount']]
 
 # Add Claim Amount when training, remove when testing
-test_data_in = test_data.loc[:, ['feature4', 'feature9', 'feature13', 'feature14', 'feature15',
-                                      'feature18']]
+test_data_in = test_data.loc[:, ['feature1', 'feature2', 'feature4', 'feature5', 'feature6', 'feature7',
+                                      'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
+                                      'feature15', 'feature16', 'feature17', 'feature18']]
 
 training_data_in = training_data_in.drop('ClaimAmount', axis=1, inplace=False)
 training_data_out = train_data.loc[:, 'ClaimAmount']
@@ -89,37 +75,18 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 #test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
 #test_data_out = test_data.loc[:, 'ClaimAmount']
 
-# Cross Validation
+num_boost_rounds = 999
 
-random_grid = {'C': [6,7,8,9,10,11,12],
-            'kernel': ['linear','rbf']}
+best_clf = xgb.XGBClassifier(objective='binary:logistic', seed=90, num_round=num_boost_rounds, subsample=0.9, scale_pos_weight=5,
+                        reg_alpha=1e-05, n_estimators=90, min_child_weight=2, max_depth=20, learning_rate=0.1, gamma=0.5, colsample_bytree=0.9)
 
-clf = svm.SVC()
-best_clf = GridSearchCV(clf, param_grid=random_grid, n_jobs=-1)
 best_clf.fit(training_data_in, training_data_out)
 
-#print("Best Hyper Parameters:\n",model1.best_params_)
-#best_clf = RandomForestClassifier(bootstrap=False, max_depth=10, max_features='auto', min_samples_leaf=4, min_samples_split=2, n_estimators=300)
-#best_clf.fit(training_data_in, training_data_out)
+print("Starting...")
 
-prediction = best_clf.predict(test_data_in)
-
-# y_pred = clf.predict(test_data_in)
-# y_train = clf.predict(training_data_in)
-
-# Print accuracy of 'test' and 'training'
-
-#print('Acc:', metrics.accuracy_score(test_data_out, y_pred))
-#print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
-
-# Code to export dataframe
-
-print("test_data:", test_data.shape[0])
-print("prediction:", prediction.shape[0])
+loaded_clf = pickle.load(open('xgb.sav', 'rb'))
+load_predict = loaded_clf.predict(test_data_in)
 
 export = test_data.copy()
-export['PredictedCategory'] = prediction
-export.to_csv('category_true_test_svc.csv')
-print(export)
-
-print(export.shape[0])
+export['PredictedCategory'] = load_predict
+export.to_csv('category_true_test_xgb.csv')

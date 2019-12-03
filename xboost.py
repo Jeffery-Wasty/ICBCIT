@@ -5,6 +5,7 @@ import xgboost as xgb
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 import random
+from imblearn.over_sampling import RandomOverSampler
 from sklearn import svm
 
 
@@ -56,7 +57,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.2 * no_claims_rows)
+no_claims_size = int(0.4 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -94,22 +95,22 @@ test_data_out = test_data.loc[:, 'ClaimAmount']
 # Cross Validation
 
 random_grid = {
-    'max_depth': range (8, 16, 1),
-    'n_estimators': range(90, 240, 30),
-    'learning_rate': [0.1, 0.01, 0.05, 0.2, 0.3, 0.4, 0.5],
-    'min_child_weight': range(0, 8, 1),
+    'max_depth': range (15, 25, 1),
+    'n_estimators': range(150, 300, 30),
+    'learning_rate': [0.1, 0.01, 0.05, 0.4, 0.5],
+    'min_child_weight': range(0, 4, 1),
     'gamma':[i/10.0 for i in range(0, 8)],
     'reg_alpha':[0.1, 1, 2, 0.01, 0.001, 0.00001],
-    'subsample':[i/10.0 for i in range(3, 10)],
-    'colsample_bytree':[i/10.0 for i in range(3,10)],
-    'scale_pos_weight': range(1, 10)
+    'subsample':[i/10.0 for i in range(4, 9)],
+    'colsample_bytree':[i/10.0 for i in range(7,10)],
+    'scale_pos_weight': range(3, 10)
 }
 
 
 data_dmatrix = xgb.DMatrix(data=training_data_in, label=training_data_out)
 num_boost_rounds = 999
 
-clf = xgb.XGBClassifier(objective='binary:logistic', seed=42, num_round=num_boost_rounds)
+clf = xgb.XGBClassifier(objective='binary:logistic', seed=69, num_round=num_boost_rounds)
 # {'learning_rate': 0.1, 'max_depth': 9, 'n_estimators': 180}
 # {'eta': 0.3, 'learning_rate': 0.1, 'max_depth': 12, 'n_estimators': 140}
 
@@ -118,7 +119,7 @@ clf = xgb.XGBClassifier(objective='binary:logistic', seed=42, num_round=num_boos
 
 print("Starting...")
 best_clf = RandomizedSearchCV(estimator=clf, param_distributions=random_grid, scoring='f1', n_jobs=4, cv=5, verbose=1,
-                              n_iter=25)
+                              n_iter=20, random_state=416)
 
 best_clf.fit(training_data_in, training_data_out)
 
@@ -133,7 +134,7 @@ y_train = best_clf.predict(training_data_in)
 
 # Print accuracy of 'test' and 'training'
 
-#print('Acc:', metrics.accuracy_score(test_data_out, prediction))
+print('Acc:', metrics.accuracy_score(test_data_out, prediction))
 #print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
 
 print('F1:', metrics.f1_score(test_data_out, prediction))

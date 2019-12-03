@@ -1,7 +1,6 @@
 import pandas as pd
-import numpy as np
-from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
+import pickle
 
 # Loading csvs
 data = pd.read_csv("trainingset.csv")
@@ -35,13 +34,19 @@ test_data_in = test_data_in.drop(drop_features, axis=1)
 
 true_data = true_data.drop(drop_features, axis=1)
 
-clf = RandomForestRegressor(min_samples_split=3, n_estimators=30)
+clf = RandomForestRegressor(min_samples_split=6, n_estimators=120, max_depth=3, min_samples_leaf=1)
 clf.fit(training_data_in, training_data_out)
+
+# clf = pickle.load(open('rf_model.sav', 'rb'))
 y_pred_val = clf.predict(true_data)
 
+pickle.dump(clf, open('rf_model.sav', 'wb'))
+
 export = pd.DataFrame(columns=['ClaimAmount'])
+
 export['ClaimAmount'] = y_pred_val
+
 for i in range(len(export)):
     if originalTest.iloc[i]['PredictedCategory'] == 0:
         export.iloc[i, export.columns.get_loc('ClaimAmount')] = 0
-export.to_csv('xgbv1-randomforest-true.csv')
+#export.to_csv('xgbv1-randomforest-true.csv')
