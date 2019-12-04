@@ -1,0 +1,70 @@
+Install python packages using:
+
+"pip install xgboost sklearn pandas matplotlib"
+&/or
+"pip3 install xgboost sklearn pandas matplotlib"
+
+Instructions:
+`python xgboost1.py`
+
+3_1_1:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.5, 'scale_pos_weight': 5, 'reg_alpha': 1e-05, 'n_estimators': 180, 'min_child_weight': 0, 'max_depth': 19, 'learning_rate': 0.01, 'gamma': 0.4, 'colsample_bytree': 0.8} 
+                Line 148 should output to:
+                    `3_1_1.csv`
+Output:         ../3_1_1.csv
+MAE:            115.64304110634701
+
+3_1_2:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.5, 'scale_pos_weight': 5, 'reg_alpha': 1e-05, 'n_estimators': 180, 'min_child_weight': 0, 'max_depth': 19, 'learning_rate': 0.01, 'gamma': 0.4, 'colsample_bytree': 0.8}
+                Line 148 should output to:
+                    `3_1_2.csv`
+Output:         ../3_1_2.csv
+MAE:            118.5670543136292
+
+3_1_3:
+Parameters:     Params on Line 114 should be:
+                    param_grid = {
+                        'num_leaves': [200],
+                        'reg_alpha': [0.01],
+                        'min_data_in_leaf': [60],
+                        'lambda_l1': [0.1],
+                        'lambda_l2': [0]
+                        }
+                Line 148 should output to:
+                    `3_1_3.csv`
+Output:         ../3_1_3.csv
+MAE:            112.19821133074069
+
+3_1_4:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.4, 'scale_pos_weight': 9, 'reg_alpha': 1e-05, 'n_estimators': 210, 'min_child_weight': 1, 'max_depth': 18, 'learning_rate': 0.1, 'gamma': 0.1, 'colsample_bytree': 0.7} 
+                Line 148 should output to:
+                    `3_1_4.csv`
+Output:         ../3_1_4.csv
+MAE:            165.3988551584505
+
+3_1_5:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.8, 'scale_pos_weight': 3, 'reg_alpha': 1e-05, 'n_estimators': 180, 'min_child_weight': 2, 'max_depth': 12, 'learning_rate': 0.1, 'gamma': 0.5, 'colsample_bytree': 0.7} 
+                Line 148 should output to:
+                    `3_1_5.csv`
+Output:         ../3_1_5.csv
+MAE:            141.71324615208127
+
+3_1_6:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.8, 'scale_pos_weight': 7, 'reg_alpha': 0.01, 'n_estimators': 210, 'min_child_weight': 0, 'max_depth': 14, 'learning_rate': 0.2, 'gamma': 0.4, 'colsample_bytree': 0.3} 
+                Line 148 should output to:
+                    `3_1_6.csv`
+Output:         ../3_1_6.csv
+MAE:            208.10680759249277
+
+3_1_7:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.7, 'scale_pos_weight': 2, 'reg_alpha': 2, 'n_estimators': 180, 'min_child_weight': 0, 'max_depth': 9, 'learning_rate': 0.3, 'gamma': 0.1, 'colsample_bytree': 0.9} 
+                Line 148 should output to:
+                    `3_1_7.csv`
+Output:         ../3_1_7.csv
+MAE:            208.20720759249277

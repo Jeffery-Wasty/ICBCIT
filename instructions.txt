@@ -1,0 +1,23 @@
+Submission includes:
+
+    final_model.py
+    xgb.sav
+    rf_model.sav
+
+in the same directory.
+
+Instructions:
+
+1)
+    Place "competitionset.csv" in the root directory.
+
+2)
+    "pip install pickle pandas"
+    &/or
+    "pip3 install pickle pandas"
+
+3)
+    Run command "python final_model.py"
+
+4)
+    Output will be "predictedclaimamount.csv"

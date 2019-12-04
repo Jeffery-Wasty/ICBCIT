@@ -1,0 +1,73 @@
+Install python packages using:
+
+"pip install xgboost sklearn pandas matplotlib"
+&/or
+"pip3 install xgboost sklearn pandas matplotlib"
+
+Instructions:
+`python xgboost1.py` for 1 - 5
+`python randomclass.py` for 6 - 7
+
+4_1_1:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.9, 'scale_pos_weight': 5, 'reg_alpha': 1e-05, 'n_estimators': 90, 'min_child_weight': 2, 'max_depth': 20, 'learning_rate': 0.1, 'gamma': 0.5, 'colsample_bytree': 0.9}
+                RF Params on Line 38 shoud be:
+                	{'bootstrap': False, 'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 220}
+                Line 148 should output to:
+                    `4_1_1.csv`
+Output:         ../4_1_1.csv
+MAE:            138.13758878504203
+
+4_1_2:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.6, 'scale_pos_weight': 8, 'reg_alpha': 2e-05, 'n_estimators': 210, 'min_child_weight': 3, 'max_depth': 20, 'learning_rate': 0.05, 'gamma': 0.3, 'colsample_bytree': 0.7} 
+                RF Params on Line 38 shoud be:
+                	{'bootstrap': False, 'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 220}
+                Line 148 should output to:
+                    `4_1_2.csv`
+Output:         ../4_1_2.csv
+MAE:            137.48624031844534
+
+4_1_3:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.6, 'scale_pos_weight': 8, 'reg_alpha': 2e-05, 'n_estimators': 210, 'min_child_weight': 3, 'max_depth': 20, 'learning_rate': 0.05, 'gamma': 0.3, 'colsample_bytree': 0.7} 
+                RF Params on Line 38 shoud be:
+                	{'bootstrap': False, 'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 5, 'n_estimators': 220}
+                Line 148 should output to:
+                    `4_1_3.csv`
+Output:         ../4_1_3.csv
+MAE:            146.40893280096168
+
+4_1_4:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.6, 'scale_pos_weight': 8, 'reg_alpha': 2e-05, 'n_estimators': 210, 'min_child_weight': 3, 'max_depth': 20, 'learning_rate': 0.05, 'gamma': 0.3, 'colsample_bytree': 0.7} 
+                RF Params on Line 38 shoud be:
+                	(min_samples_split=3, n_estimators=30)
+                Line 148 should output to:
+                    `4_1_4.csv`
+Output:         ../4_1_4.csv
+MAE:            123.54261250544118
+
+4_1_5:
+Parameters:     Params on Line 114 should be:
+                    {'subsample': 0.9, 'scale_pos_weight': 5, 'reg_alpha': 1e-05, 'n_estimators': 90, 'min_child_weight': 2, 'max_depth': 20, 'learning_rate': 0.1, 'gamma': 0.5, 'colsample_bytree': 0.9}
+                RF Params on Line 38 shoud be:
+                	(min_samples_split=3, n_estimators=30)
+                Line 148 should output to:
+                    `4_1_5.csv`
+Output:         ../4_1_5.csv
+MAE:            119.59669509152718
+
+4_1_6:
+Parameters:     
+                Line 148 should output to:
+                    `4_1_6.csv`
+Output:         ../4_1_6.csv
+MAE:            127.457238496362385
+
+4_1_7:
+Parameters:     
+                Line 148 should output to:
+                    `4_1_7.csv`
+Output:         ../4_1_7.csv
+MAE:            125.58261250544118

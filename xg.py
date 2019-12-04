@@ -1,5 +1,5 @@
 import xgboost as xgb
-from sklearn.metrics import mean_absolute_error, accuracy_score
+from sklearn.metrics import mean_absolute_error, accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import warnings
@@ -36,6 +36,9 @@ def test(xg_reg, X_train, X_test, y_train, y_test):
     preds = xg_reg.predict(X_test)
     mae = mean_absolute_error(y_test, preds)
     print("Test Mean Absolute Error:\t%f" % (mae))
+
+    f1 = f1_score(y_test, preds)
+    print("F1 Score:\t%f" % (f1))
 
     # inaccurate = 0
 
@@ -87,4 +90,15 @@ test(xg_reg, X_train, X_test, y_train, y_test)
 
 # Visualizations
 # plot_tree(100, 40)
-feature_importance(15, 15, xg_reg)
+# feature_importance(15, 15, xg_reg)
+
+# fit model no training data
+# model = xgb.XGBClassifier(objective='reg:squarederror', colsample_bytree=0.5, learning_rate=0.1,
+#                           max_depth=20, alpha=10, n_estimators=10)
+# model.fit(X_train, y_train)
+# # make predictions for test data
+# y_pred = model.predict(X_test)
+# predictions = [round(value) for value in y_pred]
+# # evaluate predictions
+# accuracy = accuracy_score(y_test, predictions)
+# print("Accuracy: %.2f%%" % (accuracy * 100.0))

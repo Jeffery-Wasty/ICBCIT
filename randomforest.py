@@ -13,7 +13,8 @@ from sklearn.metrics import r2_score
 
 def forest_kfoldCV(x, y, K, n):
 
-    rf = RandomForestRegressor(n_estimators=30, random_state=42, max_depth=1, min_samples_split=10)
+    rf = RandomForestRegressor(
+        n_estimators=30, random_state=42, max_depth=1, min_samples_split=10)
     subset_in = np.array_split(x, K)
     subset_out = np.array_split(y, K)
     cut_off_x = len(subset_in[K - 1])
@@ -32,10 +33,11 @@ def forest_kfoldCV(x, y, K, n):
             training_setout = np.concatenate(subset_out[1:])
         elif (i == K - 1):
             training_setin = np.concatenate(subset_in[0:i])
-            training_setout= np.concatenate(subset_out[0:i])
+            training_setout = np.concatenate(subset_out[0:i])
         else:
             training_setin = np.concatenate(subset_in[0:i] + subset_in[i + 1:])
-            training_setout = np.concatenate(subset_out[0:i] + subset_out[i + 1:])
+            training_setout = np.concatenate(
+                subset_out[0:i] + subset_out[i + 1:])
 
         rf.fit(training_setin, training_setout)
 #       print(pd.Series(rf.feature_importances_, index=training_data_in.columns))
@@ -63,7 +65,7 @@ def forest_kfoldCV(x, y, K, n):
 
 
 data = pd.read_csv("datasets/trainingset.csv")
-testSet = pd.read_csv("datasets/testset.csv")
+testSet = pd.read_csv("3_1_7.csv")
 subset = data.dropna(axis=0, how='any', inplace=False)
 data = data[data['ClaimAmount'] != 0]
 print(data.head(100).to_string())
@@ -83,8 +85,8 @@ test_data_out = data_out[train_set_size:]
 temp_test_in = test_data_in
 
 drop_features = ['feature3', 'feature4', 'feature5', 'feature7',
-                                      'feature9', 'feature13', 'feature14',
-                                      'feature18']
+                 'feature9', 'feature13', 'feature14',
+                 'feature18']
 
 training_data_in = training_data_in.drop(drop_features, axis=1)
 testSet = testSet.drop(drop_features, axis=1)
@@ -108,14 +110,15 @@ print(forest_kfoldCV(training_data_in, training_data_out, 5, 0))
 #plt.plot(range(2, 12), pt3_valid_arr)
 #plt.suptitle("Min samples to split vs. mae")
 #plt.xlabel("Min samples to split ")
-#plt.ylabel("Error")
+# plt.ylabel("Error")
 #plt.legend(['y = train_error', 'y = cv_error'], loc='upper left')
-#plt.show()
+# plt.show()
 
 # print(y_pred_val[0])
 # print(list(test_data_out)[0])
 
-rf2 = RandomForestRegressor(n_estimators=20, random_state=42, max_depth=1, min_samples_split=10)
+rf2 = RandomForestRegressor(
+    n_estimators=20, random_state=42, max_depth=1, min_samples_split=10)
 rf2.fit(training_data_in, training_data_out)
 y_pred_val = rf2.predict(testSet)
 

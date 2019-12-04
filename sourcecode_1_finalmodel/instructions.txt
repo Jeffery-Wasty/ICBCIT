@@ -1,0 +1,29 @@
+Submission includes:
+
+    final_model.py
+    xgb.sav
+    rf_model.sav
+    xgboost-0.90-cp37-cp37m-win32.whl
+    instructions.txt
+
+in the same directory.
+
+Instructions:
+
+1)
+    Place "competitionset.csv" in the same folder as these instructions.
+
+2)
+	Open a new command prompt and navigate to the same folder. Run the following commands:
+
+    	pip install pandas
+    	pip install xgboost-0.90-cp37-cp37m-win32.whl
+    	pip install sklearn
+
+3)
+    Generate output with the following command: 
+
+    	python final_model.py
+
+4)
+    Output will be "predictedclaimamount.csv" and will be in the same folder "competitionset.csv" was placed in.
