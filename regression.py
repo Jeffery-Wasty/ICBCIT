@@ -18,7 +18,7 @@ from sklearn.ensemble import RandomForestRegressor
 # This will do everything else for you, it will break a
 
 data = pd.read_csv("datasets/trainingset.csv")
-testSet = pd.read_csv("logistic_train_result.csv")
+testSet = pd.read_csv("category_true_test_lgbm.csv")
 
 # This part is just setting up the training dataset
 subset = data.dropna(axis=0, how='any', inplace=False)
@@ -49,6 +49,7 @@ tuned_parameters = {'n_estimators': [10, 20, 30], 'max_depth': [None, 1, 2, 3], 
 clf = GridSearchCV(RandomForestRegressor(), tuned_parameters, cv=2,
                    n_jobs=-1, verbose=1)
 clf.fit(training_data_in, training_data_out)
+print("best params: ", clf.best_params_, clf.best_score_)
 # ypred = clf.predict(testSet)
 # mae = np.mean([abs(test_data_out.values[i] - ypred[i]) for i in range(len(ypred))])
 # print(mae)
@@ -70,7 +71,7 @@ combinedResult = combinedResult.loc[:, ['rowIndex', 'ClaimAmount']]
 combinedResult['rowIndex'] = (combinedResult['rowIndex']).astype(int)
 
 # Change the filename to whatever you want to export your csv as, the format will be how it should be for submission
-combinedResult.to_csv('logistic_random_forest_2.csv', index=False)
+combinedResult.to_csv('lgbm_random_forest_2.csv', index=False)
 
 
 

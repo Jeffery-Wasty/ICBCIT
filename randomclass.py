@@ -2,11 +2,11 @@ from sklearn import metrics
 import pandas as pd
 import numpy as np
 import xgboost as xgb
-from sklearn.metrics import f1_score
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-import lightgbm as lgb
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 import random
 from sklearn import svm
+from sklearn.ensemble import RandomForestClassifier
 
 
 def evaluate(model, test_features, test_labels):
@@ -42,12 +42,12 @@ train_indices = shuffled_indices[:train_set_size]
 test_indices = shuffled_indices[train_set_size:]
 
 train_data = data.iloc[train_indices, :]
-#test_data = data.iloc[test_indices, :]
+test_data = data.iloc[test_indices, :]
 test_data = test_csv.copy()
 
 # Filter out 0's in the test data, comment out if want to use entire training set.
-# indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
-# test_data = test_data.drop(indexNames, inplace=False)
+#indexNames = test_data[ test_data['ClaimAmount'] != 1 ].index
+#test_data = test_data.drop(indexNames, inplace=False)
 
 # Obtain training rows with claims
 indexNames = train_data[ train_data['ClaimAmount'] != 1 ].index
@@ -58,7 +58,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.2 * no_claims_rows)
+no_claims_size = int(0.5 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -77,12 +77,12 @@ train_indices = shuffled_indices[:num_rows]
 train_data = train_data.iloc[train_indices, :]
 
 # Filter out certain columns
-training_data_in = train_data.loc[:, ['feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6', 'feature7',
+training_data_in = train_data.loc[:, ['feature1', 'feature2', 'feature4', 'feature5', 'feature6', 'feature7',
                                       'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
                                       'feature15', 'feature16', 'feature17', 'feature18', 'ClaimAmount']]
 
 # Add Claim Amount when training, remove when testing
-test_data_in = test_data.loc[:, ['feature1', 'feature2', 'feature3', 'feature4', 'feature5', 'feature6', 'feature7',
+test_data_in = test_data.loc[:, ['feature1', 'feature2', 'feature4', 'feature5', 'feature6', 'feature7',
                                       'feature8', 'feature9', 'feature10', 'feature11', 'feature12', 'feature14',
                                       'feature15', 'feature16', 'feature17', 'feature18']]
 
@@ -91,67 +91,60 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 
 # Uncomment when training, comment when testing
 # test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
-# # test_data_out = test_data.loc[:, 'ClaimAmount']
+# test_data_out = test_data.loc[:, 'ClaimAmount']
 
 # Cross Validation
 
 random_grid = {
-    'max_depth': range (2, 15, 1),
-    'n_estimators': range(60, 220, 40),
-    'learning_rate': [0.1, 0.01, 0.05],
-#    'eta': [.3, .2, .1, .05, .01, .005],
-    'min_child_weight':range(1,6,2),
-    'gamma':[i/10.0 for i in range(0,5)],
-    'reg_alpha':[1e-5, 1e-2, 0.1, 1, 100]
-}
-
-params = {
-    # Parameters that we are going to tune.
-    'max_depth':6,
-    'min_child_weight': 1,
-    'eta':.3,
-    'subsample': 1,
-    'colsample_bytree': 1,
-    # Other parameters
+    'max_depth': range (12, 24, 1),
+    'n_estimators': range(90, 240, 30),
+    'learning_rate': [0.1, 0.01, 0.05, 0.2, 0.3, 0.4, 0.5],
+    'min_child_weight': range(0, 8, 1),
+    'gamma':[i/10.0 for i in range(0, 8)],
+    'reg_alpha':[0.1, 1, 2, 0.01, 0.001, 0.00001],
+    'subsample':[i/10.0 for i in range(3, 10)],
+    'colsample_bytree':[i/10.0 for i in range(3,10)],
+    'scale_pos_weight': range(1, 10)
 }
 
 
+
+data_dmatrix = xgb.DMatrix(data=training_data_in, label=training_data_out)
 num_boost_rounds = 999
 
-#clf = xgb.XGBClassifier(objective='binary:logistic', nthread=4, seed=42)
+best_clf = RandomForestClassifier(class_weight='balanced')
 # {'learning_rate': 0.1, 'max_depth': 9, 'n_estimators': 180}
+# {'eta': 0.3, 'learning_rate': 0.1, 'max_depth': 12, 'n_estimators': 140}
 
 #best_clf = xgb.train(random_grid, )
 #best_clf.fit(training_data_in, training_data_out)
 
 print("Starting...")
-#best_clf = GridSearchCV(estimator=clf, param_grid=random_grid, scoring='f1', n_jobs=4, cv=5)
+# best_clf = RandomizedSearchCV(estimator=clf, param_distributions=params, scoring='f1', n_jobs=4, cv=5, verbose=1,
+#                               n_iter=1, random_state=69420)
 
-#best_clf.fit(training_data_in, training_data_out)
+best_clf.fit(training_data_in, training_data_out)
 
-param_grid = {
-    'num_leaves': [200],
-    'reg_alpha': [0.01],
-    'min_data_in_leaf': [60],
-    'lambda_l1': [0.1],
-    'lambda_l2': [0]
-    }
-lgb_estimator = lgb.LGBMClassifier(boosting_type='gbdt',  objective='binary', num_boost_round=2000, learning_rate=0.01)
-best_clf = RandomizedSearchCV(estimator=lgb_estimator, param_distributions=param_grid, n_iter=1,  n_jobs=4, cv=5, scoring='f1')
-best_clf.fit(X=training_data_in, y=training_data_out)
+# print(best_clf.best_params_, best_clf.best_score_)
 
-print(best_clf.best_params_, best_clf.best_score_)
+#print("Best Hyper Parameters:\n",best_clf.best_params_)
 
 prediction = best_clf.predict(test_data_in)
 
+#y_pred = best_clf.predict(test_data_in)
 y_train = best_clf.predict(training_data_in)
 
 # Print accuracy of 'test' and 'training'
 
-# print('Acc:', metrics.accuracy_score(test_data_out, prediction))
-# print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
-# print('F1 report: ', f1_score(test_data_out, prediction))
+#print('Acc:', metrics.accuracy_score(test_data_out, prediction))
+#print('2nd Acc:', metrics.accuracy_score(training_data_out, y_train))
+
+# print('F1:', metrics.f1_score(test_data_out, prediction))
+
+# Code to export dataframe
 
 export = test_data.copy()
 export['PredictedCategory'] = prediction
-export.to_csv('category_true_test_lgbm_submit.csv')
+export.to_csv('category_random_final_2.csv')
+
+#print(export.shape[0])
