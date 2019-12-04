@@ -37,9 +37,6 @@ def test(xg_reg, X_train, X_test, y_train, y_test):
     mae = mean_absolute_error(y_test, preds)
     print("Test Mean Absolute Error:\t%f" % (mae))
 
-    f1 = f1_score(y_test, preds)
-    print("F1 Score:\t%f" % (f1))
-
     # inaccurate = 0
 
     # print(y_test.index)
@@ -90,7 +87,7 @@ test(xg_reg, X_train, X_test, y_train, y_test)
 
 # Visualizations
 # plot_tree(100, 40)
-# feature_importance(15, 15, xg_reg)
+feature_importance(15, 15, xg_reg)
 
 # fit model no training data
 # model = xgb.XGBClassifier(objective='reg:squarederror', colsample_bytree=0.5, learning_rate=0.1,
