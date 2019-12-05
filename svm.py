@@ -1,10 +1,11 @@
 from sklearn import metrics
 import pandas as pd
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
 import random
+from sklearn import svm
 
 
 def evaluate(model, test_features, test_labels):
@@ -55,7 +56,7 @@ indexNames = train_data[ train_data['ClaimAmount'] != 0 ].index
 train_no_claims = train_data.drop(indexNames, inplace=False)
 
 no_claims_rows = train_no_claims.shape[0]
-no_claims_size = int(0.1 * no_claims_rows)
+no_claims_size = int(0.06 * no_claims_rows)
 
 print("Using", train_claims.shape[0], "claims")
 print("Using", no_claims_size, "non-claims")
@@ -90,21 +91,16 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 
 # Cross Validation
 
-leaf_size = list(range(1,50))
-n_neighbors = list(range(1,30))
-p=[1,2]
-# Create the random grid
-params = {'n_neighbors':[5,6,7,8,9,10],
-          'leaf_size':[1,2,3,5],
-          'weights':['uniform', 'distance'],
-          'algorithm':['auto', 'ball_tree','kd_tree','brute'],
-          'n_jobs':[-1]}
-#best_clf = KNeighborsClassifier(algorithm='ball_tree', leaf_size=5, n_neighbors=10, weights='uniform')
-clf = KNeighborsClassifier(n_jobs=-1)
-best_clf = GridSearchCV(clf, param_grid=params, n_jobs=-1)
+random_grid = {'C': [6,7,8,9,10,11,12],
+            'kernel': ['linear','rbf']}
+
+clf = svm.SVC()
+best_clf = GridSearchCV(clf, param_grid=random_grid, n_jobs=-1)
 best_clf.fit(training_data_in, training_data_out)
 
-print("Best Hyper Parameters:\n",best_clf.best_params_)
+#print("Best Hyper Parameters:\n",model1.best_params_)
+#best_clf = RandomForestClassifier(bootstrap=False, max_depth=10, max_features='auto', min_samples_leaf=4, min_samples_split=2, n_estimators=300)
+#best_clf.fit(training_data_in, training_data_out)
 
 prediction = best_clf.predict(test_data_in)
 
@@ -123,7 +119,7 @@ print("prediction:", prediction.shape[0])
 
 export = test_data.copy()
 export['PredictedCategory'] = prediction
-export.to_csv('category_true_test_knn.csv')
+export.to_csv('category_true_test_svc.csv')
 print(export)
 
 print(export.shape[0])

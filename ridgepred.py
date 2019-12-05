@@ -1,12 +1,12 @@
 import pandas as pd
+import math
+import re
 import numpy as np
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
 
-
-def poly_kfoldCV(x, y, K, p):
+def ridge_kfoldCV(x, y, K, alph):
     subset_in = np.array_split(x, K)
     subset_out = np.array_split(y, K)
     cut_off_x = len(subset_in[K - 1])
@@ -17,6 +17,7 @@ def poly_kfoldCV(x, y, K, p):
         subset_in[i] = subset_in[i][0:cut_off_x]
     for i in range(len(subset_out)):
         subset_out[i] = subset_out[i][0:cut_off_y]
+    type = Ridge(alpha=alph, fit_intercept=True)
     for i in range(K):
         validation_setin = np.array(subset_in[i])
         validation_setout = np.array(subset_out[i])
@@ -27,19 +28,11 @@ def poly_kfoldCV(x, y, K, p):
             training_setin = np.concatenate(subset_in[0:i])
             training_setout= np.concatenate(subset_out[0:i])
         else:
-            training_setin = np.concatenate(subset_in[0:i] + subset_in[i + 1:])
-            training_setout = np.concatenate(subset_out[0:i] + subset_out[i + 1:])
-
-        poly = PolynomialFeatures(degree=p)
-
-        x_transf = poly.fit_transform(training_setin)
-        valid_transf = poly.fit_transform(validation_setin)
-
-        lin_reg = LinearRegression()
-        lin_reg.fit(x_transf, training_setout)
-        y_pred_val = lin_reg.predict(valid_transf)
-        y_pred_train = lin_reg.predict(x_transf)
-
+            training_setin = np.concatenate(np.concatenate((subset_in[0:i], subset_in[i + 1:]), axis=0))
+            training_setout = np.concatenate(np.concatenate((subset_out[0:i], subset_out[i + 1:]), axis=0))
+        type.fit(X=training_setin, y=training_setout)
+        y_pred_val = type.predict(validation_setin)
+        y_pred_train = type.predict(training_setin)
         lst = []
         for n in range(len(y_pred_val)):
             tmp = abs(validation_setout[n] - y_pred_val[n])
@@ -52,11 +45,9 @@ def poly_kfoldCV(x, y, K, p):
             lst.append(tmp)
         t_mae.append(np.mean(lst))
 
-
     train_error = np.mean(t_mae)
     cv_error = np.mean(c_mae)
     return cv_error, train_error
-
 
 data = pd.read_csv("trainingset.csv")
 
@@ -89,31 +80,35 @@ training_data_out = train_data.loc[:, 'ClaimAmount']
 test_data_in = test_data_in.drop('ClaimAmount', axis=1, inplace=False)
 test_data_out = test_data.loc[:, 'ClaimAmount']
 
+ridge_test = StandardScaler(with_mean=True, with_std=True).fit_transform(test_data_in)
+ridge_train = StandardScaler(with_mean=True, with_std=True).fit_transform(training_data_in)
 
-pt3_train_arr = []
-pt3_valid_arr = []
-for i in range(11):
-    kfold_result = poly_kfoldCV(training_data_in, training_data_out, 10, i)
-    pt3_train_arr.append(kfold_result[1])
-    pt3_valid_arr.append(kfold_result[0])
-    print(i, "training: ", kfold_result[1], "cv: ", kfold_result[0])
+alpha = [10**-3, 10**-2, 10**-1, 10**0, 10**1, 10**2, 10**3, 10**4, 10**5, 10**6, 10**7, 10**8, 10**9, 10**10]
+alpha_plot = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-plt.plot(range(1, 10), pt3_train_arr)
-plt.plot(range(1, 10), pt3_valid_arr)
-plt.suptitle("Learning curve plot for feature # vs. mae")
-plt.xlabel("Number of features = ")
-plt.ylabel("Error")
-plt.legend(['y = train_error', 'y = cv_error'], loc='upper left')
+c_mae_array = []
+t_mae_array = []
+for i in range(len(alpha)):
+    mae_vals = ridge_kfoldCV(ridge_train, training_data_out, 5, alpha[i])
+    c_mae_array.append(mae_vals[0])
+    t_mae_array.append(mae_vals[1])
+
+
+plt.plot(alpha_plot, c_mae_array)
+plt.plot(alpha_plot, t_mae_array)
+plt.suptitle("Ridge regression on 5 fold-cross validation w/ alphas $10^{-3}$ to $10^{10}$")
+plt.xlabel("λ = ")
+plt.ylabel("Errors")
+plt.legend(['y = cv_error', 'y = train_error'], loc='upper left')
 plt.show()
 
+chosenLamb = Ridge(alpha=10**5)
+chosenLamb.fit(ridge_train, training_data_out)
+coeffs = chosenLamb.coef_
+index = np.argpartition(np.abs(coeffs), -17)[-17:]
+print("\nTop ten features for Ridge\n: ")
+for i in index:
+    print(training_data_in.columns[i])
+    print(coeffs[i])
 
-#lst = []
-#for i in range(len(price_pred)):
-#    tmp = abs(test_data_out.values[i] - price_pred[i])
-#    lst.append(tmp)
-#mae = np.mean(lst)
-
-#print('Mean Absolute Error = ', mae)
-
-#r2 = r2_score(list(test_data_out), price_pred)
-#print("r2 score: ", r2)
+print(training_data_in.columns)
