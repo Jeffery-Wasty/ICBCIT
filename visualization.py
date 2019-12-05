@@ -1,17 +1,23 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-data = pd.read_csv("datasets/trainingset.csv")
+data = pd.read_csv("datasets/presentation.csv")
+print(data)
 
 
-def histogram(first):
-    x = data.loc[:, first]
-    plt.hist(x, 50)
-    plt.title("Count of samples for a given claim amount")
-    plt.xlabel("Claim amount")
-    plt.ylabel("Sample count")
+def line_graph(first):
+    y = data.loc[:, first]
+    x = range(22)
+
+    plt.plot(x, y)
+    plt.title(first + " over time")
+    plt.xlabel("Submission number")
+    plt.ylabel(first)
     plt.show()
     return 0
 
 
-histogram("ClaimAmount")
+line_graph("MAE")
+# line_graph("MAEScore")
+# line_graph("F1")
+line_graph("F1Score")
