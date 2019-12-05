@@ -1,0 +1,16 @@
+To generate:
+
+1_1_1 / 1_1_2:
+Run `python linpred.py` and `python randomforest.py`
+Predictions will be output as 1_6_1.csv for random_forest
+ and 1_6_2.csv for linear regression.
+
+1_1_3 / 1_1_4:
+Run `python ridge_lasso.py`
+Predictions will be output as 1_6_3.csv for ridge_regression
+ and 1_6_4.csv for lasso.
+
+1_1_5:
+Generated in Excel
+
+1_1_6:
